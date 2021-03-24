@@ -1,8 +1,10 @@
-import React, { Suspense, useRef, useState, useEffect } from "react"
-import { Canvas, useFrame } from "react-three-fiber"
+import React, { Suspense, useRef, useState, useEffect,useMemo } from "react"
+import { Canvas, useFrame ,useLoader} from "react-three-fiber"
 import { ContactShadows, Environment, useGLTF, OrbitControls } from "drei"
 import { HexColorPicker } from "react-colorful"
-import { proxy, useProxy } from "valtio"
+import { proxy, useProxy } from "valtio";
+import * as THREE from "three";
+import logo from '../src/assets/iphone-arrow-up.svg'
 
 // Using a Valtio state model to bridge reactivity between
 // the canvas and the dom, both can write to it and/or react to it.
@@ -17,7 +19,7 @@ const state = proxy({
     stripes: "#ffffff",
     band: "#ffffff",
     patch: "#ffffff",
-  },
+  }
 })
 
 function Shoe() {
@@ -27,6 +29,7 @@ function Shoe() {
   // { nodes, materials } are extras that come from useLoader, these do not exist in threejs/GLTFLoader
   // nodes is a named collection of meshes, materials a named collection of materials
   const { nodes, materials } = useGLTF("shoe-draco.glb")
+  const texture = useMemo(() => new THREE.TextureLoader().load(logo), []);
 
   // Animate model
   useFrame((state) => {
@@ -61,7 +64,7 @@ function Shoe() {
       <mesh geometry={nodes.shoe_4.geometry} material={materials.sole} material-color={snap.items.sole} />
       <mesh geometry={nodes.shoe_5.geometry} material={materials.stripes} material-color={snap.items.stripes} />
       <mesh geometry={nodes.shoe_6.geometry} material={materials.band} material-color={snap.items.band} />
-      <mesh geometry={nodes.shoe_7.geometry} material={materials.patch} material-color={snap.items.patch} />
+      <mesh geometry={nodes.shoe_7.geometry} material={materials.patch} material-color={snap.items.patch} object={texture}/>
     </group>
   )
 }
@@ -87,7 +90,8 @@ export default function App() {
           <Environment files="royal_esplanade_1k.hdr" />
           <ContactShadows rotation-x={Math.PI / 2} position={[0, -0.8, 0]} opacity={0.25} width={10} height={10} blur={2} far={1} />
         </Suspense>
-        <OrbitControls minPolarAngle={Math.PI / 2} maxPolarAngle={Math.PI / 2} enableZoom={false} enablePan={false} />
+        {/* this line is to prvoide the control of orbit from drei */}
+        <OrbitControls minPolarAngle={Math.PI / 2} maxPolarAngle={Math.PI / 2} enableZoom={true} enablePan={true} />
       </Canvas>
       <Picker />
     </>
